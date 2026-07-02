@@ -1,0 +1,26 @@
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build folders
+bin/
+build/
+
+# Logs
+*.log
+
+# SQLite temporary files
+*.db-shm
+*.db-wal
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+
+# Environment
+.env
