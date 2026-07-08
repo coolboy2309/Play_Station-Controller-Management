@@ -21,5 +21,9 @@ func Connect(path string) error {
 
 	DB = db
 
+	if err := Migrate(); err != nil {
+		return err
+	}
+
 	return nil
 }

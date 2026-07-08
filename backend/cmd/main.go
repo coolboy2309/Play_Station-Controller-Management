@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 
-	"zoneeye/backend/internal/api"
 	"zoneeye/backend/internal/config"
 	"zoneeye/backend/internal/database"
 	"zoneeye/backend/internal/logger"
+	"zoneeye/backend/internal/server"
 )
 
 func main() {
@@ -40,7 +40,7 @@ func main() {
 	fmt.Println("================================")
 	logger.Info("Starting HTTP Server....")
 
-	err = api.Start()
+	err = server.Start()
 	if err != nil {
 		logger.Error(err.Error())
 	}
