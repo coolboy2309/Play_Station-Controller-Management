@@ -12,6 +12,7 @@ func Register(
 	stationHandler *api.StationHandler,
 	heartbeatHandler *api.HeartbeatHandler,
     agentHandler *api.AgentHandler,
+	uploadHandler *api.UploadHandler,
 ) {
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -34,4 +35,5 @@ func Register(
 	RegisterStationRoutes(mux, stationHandler)
     RegisterAgentRoutes(mux, heartbeatHandler)
     RegisterAgentRegisterRoutes(mux, agentHandler)
+	RegisterUploadRoutes(mux, uploadHandler)
 }

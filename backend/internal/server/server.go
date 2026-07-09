@@ -23,12 +23,14 @@ func Start() error {
 	heartbeatService := service.NewHeartbeatService(heartbeatRepo)
 	heartbeatHandler := api.NewHeartbeatHandler(heartbeatService)
 	agentHandler := api.NewAgentHandler()
+	uploadHandler := api.NewUploadHandler()
 
 	routes.Register(
 		mux,
 		stationHandler,
 		heartbeatHandler,
 		agentHandler,
+		uploadHandler,
 	)
 
 	address := fmt.Sprintf(
@@ -38,4 +40,11 @@ func Start() error {
 	)
 
 	return http.ListenAndServe(address, mux)
+}
+$filePath = "C:\Users\ABENEZER\Downloads\files (2)\test.jpg"
+Invoke-WebRequest `
+-Uri http://localhost:8080/agent/upload `
+-Method POST `
+-Form @{
+    screenshot = Get-Item $filePath
 }
