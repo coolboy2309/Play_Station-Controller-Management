@@ -19,8 +19,17 @@ func Start() error {
 	stationRepo := repository.NewStationRepository(database.DB)
 	stationService := service.NewStationService(stationRepo)
 	stationHandler := api.NewStationHandler(stationService)
+	heartbeatRepo := repository.NewHeartbeatRepository(database.DB)
+	heartbeatService := service.NewHeartbeatService(heartbeatRepo)
+	heartbeatHandler := api.NewHeartbeatHandler(heartbeatService)
+	agentHandler := api.NewAgentHandler()
 
-	routes.Register(mux, stationHandler)
+	routes.Register(
+		mux,
+		stationHandler,
+		heartbeatHandler,
+		agentHandler,
+	)
 
 	address := fmt.Sprintf(
 		"%s:%d",
