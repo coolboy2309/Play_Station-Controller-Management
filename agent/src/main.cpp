@@ -1,36 +1,15 @@
-#include "../include/Config.h"
-#include "../include/Logger.h"
+#include "../include/Application.h"
 
 int main()
 {
-    Logger::Info("ZoneEye Agent Starting...");
+    Application app;
 
-    Config config;
-
-    if (!config.Load("../config/config.json"))
+    if (!app.Initialize())
     {
-        Logger::Error("Configuration Load Failed");
         return -1;
     }
 
-    Logger::Info("Configuration Loaded");
-
-    Logger::Info("Agent ID : " + config.agentID);
-
-    Logger::Info("Station  : " + config.stationName);
-
-    Logger::Info("Server   : " + config.serverURL);
-
-    Logger::Info("Heartbeat: " + std::to_string(config.heartbeatInterval));
-
-    Logger::Info("Capture  : " + std::to_string(config.captureInterval));
-
-    Logger::Info("Agent Ready");
-
-    while (true)
-    {
-
-    }
+    app.Run();
 
     return 0;
 }

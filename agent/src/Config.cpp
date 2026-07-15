@@ -3,9 +3,6 @@
 #include <fstream>
 #include <iostream>
 
-#include <nlohmann/json.hpp>
-
-using json = nlohmann::json;
 
 bool Config::Load(const std::string& path)
 {
@@ -13,20 +10,37 @@ bool Config::Load(const std::string& path)
 
     if (!file.is_open())
     {
-        std::cout << "Cannot open config file\n";
         return false;
     }
 
-    json j;
+    std::string line;
 
-    file >> j;
+    while (std::getline(file, line))
+    {
+        auto pos = line.find('=');
 
-    agentID = j["agent_id"];
-    stationName = j["station_name"];
-    serverURL = j["server_url"];
+        if (pos == std::string::npos)
+            continue;
 
-    heartbeatInterval = j["heartbeat_interval"];
-    captureInterval = j["capture_interval"];
+        std::string key = line.substr(0, pos);
+
+        std::string value = line.substr(pos + 1);
+
+        if (key == "agent_id")
+            agentID = value;
+
+        else if (key == "station_name")
+            stationName = value;
+
+        else if (key == "server_url")
+            serverURL = value;
+
+        else if (key == "heartbeat_interval")
+            heartbeatInterval = std::stoi(value);
+
+        else if (key == "capture_interval")
+            captureInterval = std::stoi(value);
+    }
 
     return true;
 }
