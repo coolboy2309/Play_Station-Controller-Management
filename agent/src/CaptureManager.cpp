@@ -1,4 +1,5 @@
 #include "../include/CaptureManager.h"
+#include "../include/OCRManager.h"
 #include "../include/Logger.h"
 
 #include <opencv2/opencv.hpp>
@@ -15,33 +16,46 @@ void CaptureManager::Capture()
 
     Logger::Info("Image Loaded Successfully");
 
+    // Whole scoreboard
     cv::Rect timerRegion(0, 0, 350, 120);
-
     cv::Mat timerCrop = image(timerRegion);
 
-    cv::Mat gray;
-    cv::cvtColor(timerCrop, gray, cv::COLOR_BGR2GRAY);
+    // Only the match timer (00:47)
+    cv::Rect timerOnly(90, 10, 120, 60);
+    cv::Mat timer = timerCrop(timerOnly);
 
+    // Convert to grayscale
+    cv::Mat gray;
+    cv::cvtColor(timer, gray, cv::COLOR_BGR2GRAY);
+
+    // Enlarge image for OCR
     cv::Mat enlarged;
     cv::resize(
         gray,
         enlarged,
         cv::Size(),
-        3.0,
-        3.0,
+        4.0,
+        4.0,
         cv::INTER_CUBIC);
 
+    // Better threshold using OTSU
     cv::Mat binary;
     cv::threshold(
         enlarged,
         binary,
-        170,
+        0,
         255,
-        cv::THRESH_BINARY);
+        cv::THRESH_BINARY | cv::THRESH_OTSU);
 
+    // Save debug images
+    cv::imwrite("timer_crop.jpg", timerCrop);
     cv::imwrite("timer_binary.jpg", binary);
 
-    cv::imwrite("timer_crop.jpg", timerCrop);
-
     Logger::Info("Timer Crop Saved");
+
+    OCRManager ocr;
+
+    std::string timerText = ocr.ReadTimer("timer_binary.jpg");
+
+    Logger::Info("OCR : " + timerText);
 }
