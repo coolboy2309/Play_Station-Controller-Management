@@ -44,13 +44,6 @@ void Application::Run()
         capture.Capture();
         upload.Update();
 
-        OCRManager ocr;
-
-        std::string timer =
-            ocr.ReadTimer("timer_crop.jpg");
-
-        Logger::Info("OCR : " + timer);
-
         std::this_thread::sleep_for(
             std::chrono::seconds(1));
     }

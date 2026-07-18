@@ -1,9 +1,7 @@
 #include "../include/CaptureManager.h"
 #include "../include/OCRManager.h"
 #include "../include/Logger.h"
-
 #include <opencv2/opencv.hpp>
-
 void CaptureManager::Capture()
 {
     cv::Mat image = cv::imread("Debug/fifa_test.jpg");
@@ -21,7 +19,11 @@ void CaptureManager::Capture()
     cv::Mat timerCrop = image(timerRegion);
 
     // Only the match timer (00:47)
-    cv::Rect timerOnly(90, 10, 120, 60);
+    cv::Rect timerOnly(
+        82,
+        8,
+        135,
+        65);
     cv::Mat timer = timerCrop(timerOnly);
 
     // Convert to grayscale
@@ -38,18 +40,7 @@ void CaptureManager::Capture()
         4.0,
         cv::INTER_CUBIC);
 
-    // Better threshold using OTSU
-    cv::Mat binary;
-    cv::threshold(
-        enlarged,
-        binary,
-        0,
-        255,
-        cv::THRESH_BINARY | cv::THRESH_OTSU);
-
-    // Save debug images
-    cv::imwrite("timer_crop.jpg", timerCrop);
-    cv::imwrite("timer_binary.jpg", binary);
+    cv::imwrite("timer_binary.jpg", enlarged);
 
     Logger::Info("Timer Crop Saved");
 
