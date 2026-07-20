@@ -44,9 +44,9 @@ void CaptureManager::Capture()
 
     Logger::Info("Timer Crop Saved");
 
-    OCRManager ocr;
+    // OCRManager ocr;
 
-    std::string timerText = ocr.ReadTimer("timer_binary.jpg");
+    // std::string timerText = ocr.ReadTimer("timer_binary.jpg");
 
-    Logger::Info("OCR : " + timerText);
+    // Logger::Info("OCR : " + timerText);
 }

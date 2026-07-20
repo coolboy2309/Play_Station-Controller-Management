@@ -19,6 +19,13 @@ add_executable(
     src/UploadManager.cpp
     src/HttpClient.cpp
     src/OCRManager.cpp
+    src/GameState.cpp
+    src/GameStateParser.cpp
+    src/GameStateManager.cpp
+    src/MatchSession.cpp
+    src/SessionManager.cpp
+    src/MatchTracker.cpp
+    src/
 )
 target_link_libraries(
     ZoneEyeAgent

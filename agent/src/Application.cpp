@@ -4,6 +4,9 @@
 #include "../include/CaptureManager.h"
 #include "../include/UploadManager.h"
 #include "../include/OCRManager.h"
+#include "../include/GameStateParser.h"
+#include "../include/GameStateManager.h"
+#include "../include/MatchTracker.h"
 
 #include <thread>
 #include <chrono>
@@ -37,11 +40,62 @@ void Application::Run()
     HeartbeatManager heartbeat(config);
     CaptureManager capture;
     UploadManager upload;
+    MatchTracker tracker;
 
     while (true)
     {
         heartbeat.Update();
         capture.Capture();
+        OCRManager ocr;
+
+        std::string timer = ocr.ReadTimer("timer_binary.jpg");
+
+        Logger::Info("OCR : " + timer);
+
+        int minute = GameStateParser::GetMinute(timer);
+
+        int second = GameStateParser::GetSecond(timer);
+
+        MatchState state = GameStateManager::Detect(minute);
+
+        tracker.Update(state, minute, second);
+
+        Logger::Info("Minute : " + std::to_string(minute));
+
+        Logger::Info("Second : " + std::to_string(second));
+
+        switch (state)
+        {
+        case MatchState::FIRST_HALF:
+            Logger::Info("State : FIRST_HALF");
+            break;
+
+        case MatchState::HALFTIME:
+            Logger::Info("State : HALFTIME");
+            break;
+
+        case MatchState::SECOND_HALF:
+            Logger::Info("State : SECOND_HALF");
+            break;
+
+        case MatchState::END_CANDIDATE:
+            Logger::Info("State : END_CANDIDATE");
+            break;
+
+        case MatchState::EXTRA_TIME:
+            Logger::Info("State : EXTRA_TIME");
+            break;
+
+        default:
+            Logger::Info("State : UNKNOWN");
+            break;
+        }
+
+        tracker.Update(
+            state,
+            minute,
+            second);
+
         upload.Update();
 
         std::this_thread::sleep_for(
