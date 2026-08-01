@@ -5,5 +5,12 @@
 class OCRManager
 {
 public:
-    std::string ReadTimer(const std::string& imagePath);
+
+    std::string ReadTimer();
+
+private:
+
+    std::string ReadSingleImage(
+        const std::string& imagePath,
+        int& confidence);
 };

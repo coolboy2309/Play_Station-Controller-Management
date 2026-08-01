@@ -25,7 +25,7 @@ add_executable(
     src/MatchSession.cpp
     src/SessionManager.cpp
     src/MatchTracker.cpp
-    src/
+    src/LayoutManager.cpp
 )
 target_link_libraries(
     ZoneEyeAgent

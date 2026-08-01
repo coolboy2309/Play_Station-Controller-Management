@@ -9,6 +9,7 @@ public:
     std::string agentID;
     std::string stationName;
     std::string serverURL;
+    std::string competition;
 
     int heartbeatInterval;
     int captureInterval;

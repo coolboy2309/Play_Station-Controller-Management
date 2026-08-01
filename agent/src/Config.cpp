@@ -3,8 +3,7 @@
 #include <fstream>
 #include <iostream>
 
-
-bool Config::Load(const std::string& path)
+bool Config::Load(const std::string &path)
 {
     std::ifstream file(path);
 
@@ -40,6 +39,9 @@ bool Config::Load(const std::string& path)
 
         else if (key == "capture_interval")
             captureInterval = std::stoi(value);
+
+        else if (key == "competition")
+            competition = value;
     }
 
     return true;

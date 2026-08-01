@@ -1,0 +1,127 @@
+622 88:42
+ // cv::namedWindow("Debug", cv::WINDOW_NORMAL);
+
+    // cv::setMouseCallback(
+    //     "Debug",
+    //     [](int event, int x, int y, int, void *)
+    //     {
+    //         if (event == cv::EVENT_MOUSEMOVE)
+    //         {
+    //             std::cout << "X=" << x
+    //                       << " Y=" << y
+    //                       << std::endl;
+    //         }
+    //     });
+
+    // cv::imshow("Debug", image);
+    // cv::waitKey(0);
+
+
+    X=66  Y=34
+    X=187 Y=92
+
+champion League
+    [INFO] Main Loop Started
+[INFO] Image Loaded Successfully
+[INFO] Timer Crop Saved
+[INFO] Pix Width = 376
+[INFO] Pix Height = 128
+[INFO] Pix Depth = 8
+[INFO] Mean confidence = 0
+[INFO] OCR Raw = []
+[INFO] Pix Width = 376
+[INFO] Pix Height = 128
+[INFO] Pix Depth = 8
+[INFO] Mean confidence = 85
+[INFO] OCR Raw = [56:13]
+[INFO] Gray Confidence : 0
+[INFO] Binary Confidence : 85
+[INFO] Using Binary OCR
+[INFO] OCR : 56:13
+[INFO] MATCH STARTED
+[INFO] Minute : 56
+[INFO] Second : 13
+[INFO] State : SECOND_HALF
+[INFO] Upload Tick
+[INFO] Image Loaded Successfully
+[INFO] Timer Crop Saved
+[INFO] Pix Width = 376
+[INFO] Pix Height = 128
+[INFO] Pix Depth = 8
+[INFO] Mean confidence = 0
+[INFO] OCR Raw = []
+[INFO] Pix Width = 376
+[INFO] Pix Height = 128
+[INFO] Pix Depth = 8
+[INFO] Mean confidence = 85
+[INFO] OCR Raw = [56:13]
+[INFO] Gray Confidence : 0
+[INFO] Binary Confidence : 85
+[INFO] Using Binary OCR
+[INFO] OCR : 56:13
+[INFO] Minute : 56
+[INFO] Second : 13
+[INFO] State : SECOND_HALF
+[INFO] Upload Tick
+
+
+
+Go to your project:
+
+cd "C:\Users\ABENEZER\Music\new project ZoneEye\ZoneEye\agent\build"
+
+cmake --build .
+
+
+
+
+
+
+
+
+
+
+
+Africa Cup of Nations (AFCON)
+TL X=109 Y=79
+BR X=211 Y=97
+
+Fifa World Cup
+TL X=365 Y=52
+BR X=434 Y=81
+
+Cope America
+TL X=227 Y=56
+BR X=307 Y=83
+
+Bondasliga
+TL X=101 Y=39
+BR X=165 Y=64
+
+International Friendly
+TL X=109 Y=81
+BR X=187 Y=100
+
+LaLiga EA Sports
+TL X=60 Y=72       X=77 Y=109
+BR X=117 Y=108     X=137 Y=134
+
+Ligue 1
+TL X=72 Y=105
+BR X=137 Y=134
+
+Premier League
+TL X=153 Y=90
+BR X=251 Y=111
+
+serial A
+TL X=421 Y=45
+BR X=491 Y=78
+
+UEFA Champions League
+TL X=103 Y=46
+BR X=197 Y=78
+
+UEFA Euro
+TL X=68 Y=35
+BR X=157 Y=66

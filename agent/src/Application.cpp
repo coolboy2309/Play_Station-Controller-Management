@@ -45,10 +45,10 @@ void Application::Run()
     while (true)
     {
         heartbeat.Update();
-        capture.Capture();
+        capture.Capture(config.competition);
         OCRManager ocr;
 
-        std::string timer = ocr.ReadTimer("timer_binary.jpg");
+        std::string timer = ocr.ReadTimer();
 
         Logger::Info("OCR : " + timer);
 

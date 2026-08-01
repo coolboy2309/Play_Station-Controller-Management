@@ -1,54 +1,76 @@
 #include "../include/OCRManager.h"
 #include "../include/Logger.h"
+
 #include <tesseract/baseapi.h>
 #include <leptonica/allheaders.h>
+
 #include <algorithm>
 
-std::string OCRManager::ReadTimer(const std::string &imagePath)
+std::string OCRManager::ReadSingleImage(
+    const std::string &imagePath,
+    int &confidence)
 {
     tesseract::TessBaseAPI tess;
 
-    if (tess.Init("C:/Program Files/Tesseract-OCR/tessdata", "eng"))
+    if (tess.Init(
+            "C:/Program Files/Tesseract-OCR/tessdata",
+            "eng"))
     {
-        return "Tesseract Init Failed";
+        return "";
     }
 
-    tess.SetPageSegMode(tesseract::PSM_SINGLE_BLOCK);
+    tess.SetPageSegMode(
+        tesseract::PSM_SINGLE_LINE);
 
     tess.SetVariable(
         "tessedit_char_whitelist",
         "0123456789:");
 
-    Pix *image = pixRead(imagePath.c_str());
-    Logger::Info("Pix Width = " + std::to_string(pixGetWidth(image)));
-    Logger::Info("Pix Height = " + std::to_string(pixGetHeight(image)));
-    Logger::Info("Pix Depth = " + std::to_string(pixGetDepth(image)));
-    Logger::Info(
-        "Image Width = " + std::to_string(pixGetWidth(image)));
+    tess.SetVariable(
+        "load_system_dawg",
+        "0");
 
-    Logger::Info(
-        "Image Height = " + std::to_string(pixGetHeight(image)));
+    tess.SetVariable(
+        "load_freq_dawg",
+        "0");
 
-    Logger::Info(
-        "Image Depth = " + std::to_string(pixGetDepth(image)));
+    Pix *image =
+        pixRead(imagePath.c_str());
 
     if (!image)
     {
         tess.End();
-        return "Image Load Failed";
+        return "";
     }
+
+    Logger::Info(
+        "Pix Width = " +
+        std::to_string(
+            pixGetWidth(image)));
+
+    Logger::Info(
+        "Pix Height = " +
+        std::to_string(
+            pixGetHeight(image)));
+
+    Logger::Info(
+        "Pix Depth = " +
+        std::to_string(
+            pixGetDepth(image)));
 
     tess.SetImage(image);
 
-    tess.SetSourceResolution(300);
-
     tess.Recognize(0);
+
+    confidence =
+        tess.MeanTextConf();
 
     Logger::Info(
         "Mean confidence = " +
-        std::to_string(tess.MeanTextConf()));
+        std::to_string(confidence));
 
-    char *out = tess.GetUTF8Text();
+    char *out =
+        tess.GetUTF8Text();
 
     std::string result;
 
@@ -57,16 +79,34 @@ std::string OCRManager::ReadTimer(const std::string &imagePath)
         result = out;
 
         result.erase(
-            std::remove(result.begin(), result.end(), '\n'),
+            std::remove(
+                result.begin(),
+                result.end(),
+                '\n'),
             result.end());
 
         result.erase(
-            std::remove(result.begin(), result.end(), '\r'),
+            std::remove(
+                result.begin(),
+                result.end(),
+                '\r'),
             result.end());
 
         result.erase(
-            std::remove(result.begin(), result.end(), ' '),
+            std::remove(
+                result.begin(),
+                result.end(),
+                ' '),
             result.end());
+
+        if (result.length() >= 5)
+            result = result.substr(0, 5);
+
+        if (result.size() != 5 ||
+            result[2] != ':')
+        {
+            result.clear();
+        }
     }
 
     delete[] out;
@@ -75,7 +115,44 @@ std::string OCRManager::ReadTimer(const std::string &imagePath)
 
     tess.End();
 
-    Logger::Info("OCR Raw = [" + result + "]");
+    Logger::Info(
+        "OCR Raw = [" +
+        result +
+        "]");
 
     return result;
+}
+
+std::string OCRManager::ReadTimer()
+{
+    int grayConf = 0;
+    int binaryConf = 0;
+
+    std::string gray =
+        ReadSingleImage(
+            "timer_gray.jpg",
+            grayConf);
+
+    std::string binary =
+        ReadSingleImage(
+            "timer_binary.jpg",
+            binaryConf);
+
+    Logger::Info(
+        "Gray Confidence : " +
+        std::to_string(grayConf));
+
+    Logger::Info(
+        "Binary Confidence : " +
+        std::to_string(binaryConf));
+
+    if (!binary.empty())
+    {
+        Logger::Info("Using Binary OCR");
+        return binary;
+    }
+
+    Logger::Info("Using Gray OCR");
+
+    return gray;
 }
