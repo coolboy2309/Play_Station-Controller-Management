@@ -1,54 +1,41 @@
 #include "../include/TimerStabilizer.h"
-#include "../include/GameStateParser.h"
+#include <map>
 
 std::string TimerStabilizer::Update(const std::string& timer)
 {
     if (timer.empty())
-        return lastValidTimer;
-
-    if (lastValidTimer.empty())
     {
-        lastValidTimer = timer;
-        return timer;
+        if (history.empty())
+            return "";
+
+        return history.back();
     }
 
-    int oldMinute =
-        GameStateParser::GetMinute(lastValidTimer);
+    history.push_back(timer);
 
-    int oldSecond =
-        GameStateParser::GetSecond(lastValidTimer);
-
-    int newMinute =
-        GameStateParser::GetMinute(timer);
-
-    int newSecond =
-        GameStateParser::GetSecond(timer);
-
-    if (oldMinute < 0 ||
-        newMinute < 0)
+    if (history.size() > MAX_HISTORY)
     {
-        return lastValidTimer;
+        history.pop_front();
     }
 
-    int oldTotal =
-        oldMinute * 60 + oldSecond;
+    std::map<std::string, int> counter;
 
-    int newTotal =
-        newMinute * 60 + newSecond;
-
-    int diff =
-        newTotal - oldTotal;
-
-    // Accept normal movement
-    if (diff >= 0 && diff <= 2)
+    for (const auto& t : history)
     {
-        lastValidTimer = timer;
-        badFrames = 0;
-        return timer;
+        counter[t]++;
     }
 
-    // Reject impossible jump
-    badFrames++;
+    std::string bestTimer = history.back();
+    int bestCount = 0;
 
-    return lastValidTimer;
+    for (const auto& item : counter)
+    {
+        if (item.second > bestCount)
+        {
+            bestCount = item.second;
+            bestTimer = item.first;
+        }
+    }
+
+    return bestTimer;
 }

@@ -1,10 +1,14 @@
 #include "../include/MatchTracker.h"
 #include "../include/Logger.h"
+#include "../include/UploadManager.h"
 
 void MatchTracker::Update(
     MatchState state,
     int minute,
-    int second)
+    int second,
+    const std::string &timer,
+    const std::string &competition,
+    const std::string &station)
 {
     switch (trackerState)
     {
@@ -14,6 +18,11 @@ void MatchTracker::Update(
             state == MatchState::SECOND_HALF)
         {
             trackerState = TrackerState::RUNNING;
+
+            session.Start(
+                competition,
+                station,
+                timer);
 
             Logger::Info("MATCH STARTED");
         }
@@ -31,7 +40,7 @@ void MatchTracker::Update(
         {
             trackerState = TrackerState::WAITING_END;
 
-            endCandidateSecond = second;
+            endCandidateTime = std::chrono::steady_clock::now();
 
             Logger::Info("WAITING FOR MATCH END");
         }
@@ -49,9 +58,23 @@ void MatchTracker::Update(
             break;
         }
 
-        if ((second - endCandidateSecond) >= 10)
+        auto elapsed =
+            std::chrono::duration_cast<std::chrono::seconds>(
+                std::chrono::steady_clock::now() -
+                endCandidateTime);
+
+        if (elapsed.count() >= 10)
         {
             trackerState = TrackerState::FINISHED;
+
+            session.Finish(
+                timer,
+                state == MatchState::EXTRA_TIME);
+
+            UploadManager uploader;
+
+            uploader.UploadSession(
+                session.GetSession());
 
             Logger::Info("MATCH FINISHED");
         }

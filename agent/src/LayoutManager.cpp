@@ -30,7 +30,7 @@ cv::Rect LayoutManager::GetTimerRegion(const std::string &competition)
         return cv::Rect(72, 105, 65, 29);
 
     if (competition == "SerieA")
-        return cv::Rect(421, 49, 70, 28);
+        return cv::Rect(115, 60, 83, 37);
 
     if (competition == "Euro")
         return cv::Rect(68, 35, 89, 31);

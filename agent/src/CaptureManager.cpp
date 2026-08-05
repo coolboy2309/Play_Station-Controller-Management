@@ -2,6 +2,7 @@
 #include "../include/LayoutManager.h"
 #include "../include/Logger.h"
 #include <opencv2/opencv.hpp>
+#include "../include/CompetitionDetector.h"
 #include <opencv2/imgproc.hpp>
 
 void CaptureManager::Capture(const std::string &competition)
@@ -37,8 +38,14 @@ void CaptureManager::Capture(const std::string &competition)
     // Get timer position from LayoutManager
     //----------------------------------------------------
 
+    detectedCompetition =
+        CompetitionDetector::Detect(image);
+
+    Logger::Info(
+        "Competition : " + detectedCompetition);
+
     cv::Rect timerOnly =
-        LayoutManager::GetTimerRegion(competition);
+        LayoutManager::GetTimerRegion(detectedCompetition);
 
     cv::Mat timer =
         image(timerOnly).clone();
@@ -71,7 +78,7 @@ void CaptureManager::Capture(const std::string &competition)
     //----------------------------------------------------
     cv::Mat binary;
 
-    if (competition == "SerieA")
+    if (detectedCompetition == "SerieA")
     {
         cv::threshold(
             gray,
@@ -90,4 +97,9 @@ void CaptureManager::Capture(const std::string &competition)
         cv::imwrite("timer_gray.jpg", gray);
         cv::imwrite("timer_binary.jpg", gray);
     }
+}
+
+std::string CaptureManager::GetCompetition() const
+{
+    return detectedCompetition;
 }

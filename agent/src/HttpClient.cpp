@@ -4,11 +4,10 @@
 #include <curl/curl.h>
 
 bool HttpClient::SendHeartbeat(
-    const std::string& serverURL,
-    const std::string& agentID
-)
+    const std::string &serverURL,
+    const std::string &agentID)
 {
-    CURL* curl = curl_easy_init();
+    CURL *curl = curl_easy_init();
 
     if (!curl)
     {
@@ -25,12 +24,11 @@ bool HttpClient::SendHeartbeat(
         agentID +
         "\"}";
 
-    struct curl_slist* headers = nullptr;
+    struct curl_slist *headers = nullptr;
 
     headers = curl_slist_append(
         headers,
-        "Content-Type: application/json"
-    );
+        "Content-Type: application/json");
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
@@ -39,25 +37,99 @@ bool HttpClient::SendHeartbeat(
     curl_easy_setopt(
         curl,
         CURLOPT_POSTFIELDS,
-        json.c_str()
-    );
+        json.c_str());
 
     curl_easy_setopt(
         curl,
         CURLOPT_HTTPHEADER,
-        headers
-    );
+        headers);
 
     CURLcode result =
         curl_easy_perform(curl);
 
-    if(result == CURLE_OK)
+    if (result == CURLE_OK)
     {
         Logger::Info("Heartbeat Sent");
     }
     else
     {
         Logger::Error(curl_easy_strerror(result));
+    }
+
+    curl_slist_free_all(headers);
+
+    curl_easy_cleanup(curl);
+
+    return result == CURLE_OK;
+}
+bool HttpClient::SendSession(
+    const std::string &serverURL,
+    const MatchSession &session)
+{
+    CURL *curl = curl_easy_init();
+
+    if (!curl)
+    {
+        Logger::Error("Cannot initialize CURL");
+        return false;
+    }
+
+    std::string url =
+        serverURL +
+        "/session";
+
+    std::string json =
+        "{"
+        "\"competition\":\"" +
+        session.competition + "\","
+                              "\"station\":\"" +
+        session.station + "\","
+                          "\"start_timer\":\"" +
+        session.startTimer + "\","
+                             "\"end_timer\":\"" +
+        session.endTimer + "\","
+                           "\"extra_time\":" +
+        std::string(session.extraTime ? "true" : "false") +
+        "}";
+
+    struct curl_slist *headers = nullptr;
+
+    headers =
+        curl_slist_append(
+            headers,
+            "Content-Type: application/json");
+
+    curl_easy_setopt(
+        curl,
+        CURLOPT_URL,
+        url.c_str());
+
+    curl_easy_setopt(
+        curl,
+        CURLOPT_POST,
+        1L);
+
+    curl_easy_setopt(
+        curl,
+        CURLOPT_POSTFIELDS,
+        json.c_str());
+
+    curl_easy_setopt(
+        curl,
+        CURLOPT_HTTPHEADER,
+        headers);
+
+    CURLcode result =
+        curl_easy_perform(curl);
+
+    if (result == CURLE_OK)
+    {
+        Logger::Info("Session Uploaded");
+    }
+    else
+    {
+        Logger::Error(
+            curl_easy_strerror(result));
     }
 
     curl_slist_free_all(headers);

@@ -2,20 +2,39 @@
 
 MatchState GameStateManager::Detect(int minute)
 {
-    if (minute < 45)
-        return MatchState::FIRST_HALF;
+    switch (currentState)
+    {
+    case MatchState::UNKNOWN:
 
-    if (minute == 45)
-        return MatchState::HALFTIME;
+        if (minute >= 0)
+            currentState = MatchState::FIRST_HALF;
 
-    if (minute > 45 && minute < 90)
-        return MatchState::SECOND_HALF;
+        break;
 
-    if (minute == 90)
-        return MatchState::END_CANDIDATE;
+    case MatchState::FIRST_HALF:
 
-    if (minute > 90)
-        return MatchState::EXTRA_TIME;
+        if (minute >= 45)
+            currentState = MatchState::HALFTIME;
 
-    return MatchState::UNKNOWN;
+        break;
+
+    case MatchState::HALFTIME:
+
+        if (minute >= 46)
+            currentState = MatchState::SECOND_HALF;
+
+        break;
+
+    case MatchState::SECOND_HALF:
+
+        if (minute >= 100)
+            currentState = MatchState::EXTRA_TIME;
+
+        break;
+
+    default:
+        break;
+    }
+
+    return currentState;
 }

@@ -146,13 +146,22 @@ std::string OCRManager::ReadTimer()
         "Binary Confidence : " +
         std::to_string(binaryConf));
 
+    std::string timer;
+
     if (!binary.empty())
     {
         Logger::Info("Using Binary OCR");
-        return binary;
+        timer = binary;
+    }
+    else
+    {
+        Logger::Info("Using Gray OCR");
+        timer = gray;
     }
 
-    Logger::Info("Using Gray OCR");
+    timer = stabilizer.Update(timer);
 
-    return gray;
+    Logger::Info("Stable Timer : " + timer);
+
+    return timer;
 }

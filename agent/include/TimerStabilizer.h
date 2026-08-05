@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <deque>
 
 class TimerStabilizer
 {
@@ -10,7 +11,7 @@ public:
 
 private:
 
-    std::string lastValidTimer = "";
+    std::deque<std::string> history;
 
-    int badFrames = 0;
+    static const int MAX_HISTORY = 5;
 };

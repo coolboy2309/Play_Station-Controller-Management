@@ -22,10 +22,12 @@ add_executable(
     src/GameState.cpp
     src/GameStateParser.cpp
     src/GameStateManager.cpp
-    src/MatchSession.cpp
     src/SessionManager.cpp
     src/MatchTracker.cpp
     src/LayoutManager.cpp
+    src/CompetitionDetector.cpp
+    src/TimerValidator.cpp
+    src/TimerStabilizer.cpp
 )
 target_link_libraries(
     ZoneEyeAgent

@@ -1,25 +1,23 @@
 #pragma once
 
 #include <string>
-#include "GameState.h"
+#include <chrono>
 
-class MatchSession
+struct MatchSession
 {
-public:
+    std::string sessionID;
 
-    std::string stationName;
+    std::string competition;
 
-    std::string startTime;
+    std::string station;
 
-    int currentMinute;
+    std::string startTimer;
 
-    int currentSecond;
+    std::string endTimer;
 
-    MatchState state;
+    bool extraTime = false;
 
-    bool running;
+    std::chrono::steady_clock::time_point startTime;
 
-    double revenue;
-
-    MatchSession();
+    std::chrono::steady_clock::time_point endTime;
 };

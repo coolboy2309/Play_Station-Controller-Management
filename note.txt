@@ -115,8 +115,8 @@ TL X=153 Y=90
 BR X=251 Y=111
 
 serial A
-TL X=421 Y=45
-BR X=491 Y=78
+TL X=421 Y=45   X=115 Y=58
+BR X=491 Y=78   X=198 Y=95
 
 UEFA Champions League
 TL X=103 Y=46

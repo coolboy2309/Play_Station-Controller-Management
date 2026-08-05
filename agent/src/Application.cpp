@@ -41,11 +41,14 @@ void Application::Run()
     CaptureManager capture;
     UploadManager upload;
     MatchTracker tracker;
+    GameStateManager stateManager;
 
     while (true)
     {
         heartbeat.Update();
         capture.Capture(config.competition);
+        std::string competition =
+            capture.GetCompetition();
         OCRManager ocr;
 
         std::string timer = ocr.ReadTimer();
@@ -56,9 +59,7 @@ void Application::Run()
 
         int second = GameStateParser::GetSecond(timer);
 
-        MatchState state = GameStateManager::Detect(minute);
-
-        tracker.Update(state, minute, second);
+        MatchState state = stateManager.Detect(minute);
 
         Logger::Info("Minute : " + std::to_string(minute));
 
@@ -94,7 +95,10 @@ void Application::Run()
         tracker.Update(
             state,
             minute,
-            second);
+            second,
+            timer,
+            competition,
+            config.stationName);
 
         upload.Update();
 

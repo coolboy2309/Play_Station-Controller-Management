@@ -1,11 +1,20 @@
 #pragma once
 
 #include "MatchState.h"
+#include "SessionManager.h"
+#include <chrono>
+#include <string>
 
 class MatchTracker
 {
 public:
-    void Update(MatchState state, int minute, int second);
+    void Update(
+        MatchState state,
+        int minute,
+        int second,
+        const std::string &timer,
+        const std::string &competition,
+        const std::string &station);
 
 private:
     enum class TrackerState
@@ -18,5 +27,7 @@ private:
 
     TrackerState trackerState = TrackerState::IDLE;
 
-    int endCandidateSecond = 0;
+private:
+    SessionManager session;
+    std::chrono::steady_clock::time_point endCandidateTime;
 };

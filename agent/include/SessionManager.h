@@ -6,13 +6,20 @@ class SessionManager
 {
 public:
 
-    void Start(MatchSession& session);
+    void Start(
+        const std::string& competition,
+        const std::string& station,
+        const std::string& timer);
 
-    void Update(
-        MatchSession& session,
-        int minute,
-        int second,
-        MatchState state);
+    void Finish(
+        const std::string& timer,
+        bool extraTime);
 
-    void Finish(MatchSession& session);
+    const MatchSession& GetSession() const;
+
+private:
+
+    bool active = false;
+
+    MatchSession session;
 };
