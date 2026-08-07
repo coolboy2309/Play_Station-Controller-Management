@@ -16,6 +16,13 @@ public:
         const std::string &competition,
         const std::string &station);
 
+public:
+    bool HasFinished() const;
+
+    const MatchSession &GetSession() const;
+
+    void Reset();
+
 private:
     enum class TrackerState
     {
@@ -30,4 +37,6 @@ private:
 private:
     SessionManager session;
     std::chrono::steady_clock::time_point endCandidateTime;
+
+    
 };

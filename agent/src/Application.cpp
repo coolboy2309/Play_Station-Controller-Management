@@ -39,7 +39,8 @@ void Application::Run()
 
     HeartbeatManager heartbeat(config);
     CaptureManager capture;
-    UploadManager upload;
+    UploadManager upload(
+        config.serverURL);
     MatchTracker tracker;
     GameStateManager stateManager;
 
@@ -100,7 +101,13 @@ void Application::Run()
             competition,
             config.stationName);
 
-        upload.Update();
+        if (tracker.HasFinished())
+        {
+            upload.UploadSession(
+                tracker.GetSession());
+
+            tracker.Reset();
+        }
 
         std::this_thread::sleep_for(
             std::chrono::seconds(1));

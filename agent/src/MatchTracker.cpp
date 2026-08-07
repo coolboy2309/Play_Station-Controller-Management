@@ -71,11 +71,6 @@ void MatchTracker::Update(
                 timer,
                 state == MatchState::EXTRA_TIME);
 
-            UploadManager uploader;
-
-            uploader.UploadSession(
-                session.GetSession());
-
             Logger::Info("MATCH FINISHED");
         }
 
@@ -85,4 +80,19 @@ void MatchTracker::Update(
 
         break;
     }
+}
+bool MatchTracker::HasFinished() const
+{
+    return trackerState ==
+           TrackerState::FINISHED;
+}
+
+const MatchSession &
+MatchTracker::GetSession() const
+{
+    return session.GetSession();
+}
+void MatchTracker::Reset()
+{
+    trackerState = TrackerState::IDLE;
 }

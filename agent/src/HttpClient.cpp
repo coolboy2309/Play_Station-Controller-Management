@@ -94,10 +94,9 @@ bool HttpClient::SendSession(
 
     struct curl_slist *headers = nullptr;
 
-    headers =
-        curl_slist_append(
-            headers,
-            "Content-Type: application/json");
+    headers = curl_slist_append(
+        headers,
+        "Content-Type: application/json");
 
     curl_easy_setopt(
         curl,
@@ -124,16 +123,14 @@ bool HttpClient::SendSession(
 
     if (result == CURLE_OK)
     {
-        Logger::Info("Session Uploaded");
+        Logger::Info("SESSION SENT");
     }
     else
     {
-        Logger::Error(
-            curl_easy_strerror(result));
+        Logger::Error(curl_easy_strerror(result));
     }
 
     curl_slist_free_all(headers);
-
     curl_easy_cleanup(curl);
 
     return result == CURLE_OK;
