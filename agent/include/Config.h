@@ -11,6 +11,9 @@ public:
     std::string serverURL;
     std::string competition;
 
+    // NEW
+    std::string mode;
+
     int heartbeatInterval;
     int captureInterval;
 

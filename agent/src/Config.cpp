@@ -42,6 +42,9 @@ bool Config::Load(const std::string &path)
 
         else if (key == "competition")
             competition = value;
+
+        else if (key == "mode")
+    mode = value;
     }
 
     return true;

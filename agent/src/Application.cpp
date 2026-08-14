@@ -47,7 +47,9 @@ void Application::Run()
     while (true)
     {
         heartbeat.Update();
-        capture.Capture(config.competition);
+        capture.Capture(
+    "",
+    config.competition);
         std::string competition =
             capture.GetCompetition();
         OCRManager ocr;

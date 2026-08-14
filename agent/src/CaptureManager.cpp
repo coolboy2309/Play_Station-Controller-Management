@@ -4,10 +4,113 @@
 #include <opencv2/opencv.hpp>
 #include "../include/CompetitionDetector.h"
 #include <opencv2/imgproc.hpp>
+#include <windows.h>
 
-void CaptureManager::Capture(const std::string &competition)
+cv::Mat CaptureManager::CaptureScreen()
 {
-    cv::Mat image = cv::imread("Debug/fifa_test.jpg");
+    HWND hwnd = GetDesktopWindow();
+
+    HDC hwindowDC = GetDC(hwnd);
+    HDC hwindowCompatibleDC = CreateCompatibleDC(hwindowDC);
+
+    RECT windowsize;
+    GetClientRect(hwnd, &windowsize);
+
+    int width  = windowsize.right;
+    int height = windowsize.bottom;
+
+    HBITMAP hbwindow = CreateCompatibleBitmap(
+        hwindowDC,
+        width,
+        height);
+
+    SelectObject(hwindowCompatibleDC, hbwindow);
+
+    BitBlt(
+        hwindowCompatibleDC,
+        0,
+        0,
+        width,
+        height,
+        hwindowDC,
+        0,
+        0,
+        SRCCOPY);
+
+    BITMAPINFOHEADER bi;
+
+    bi.biSize = sizeof(BITMAPINFOHEADER);
+    bi.biWidth = width;
+    bi.biHeight = -height;
+    bi.biPlanes = 1;
+    bi.biBitCount = 32;
+    bi.biCompression = BI_RGB;
+    bi.biSizeImage = 0;
+    bi.biXPelsPerMeter = 0;
+    bi.biYPelsPerMeter = 0;
+    bi.biClrUsed = 0;
+    bi.biClrImportant = 0;
+
+    cv::Mat mat(height, width, CV_8UC4);
+
+    cv::Mat bgr;
+
+
+    GetDIBits(
+        hwindowCompatibleDC,
+        hbwindow,
+        0,
+        height,
+        mat.data,
+        (BITMAPINFO*)&bi,
+        DIB_RGB_COLORS);
+
+    DeleteObject(hbwindow);
+    DeleteDC(hwindowCompatibleDC);
+    ReleaseDC(hwnd, hwindowDC);
+
+    cv::cvtColor(mat, bgr, cv::COLOR_BGRA2BGR);
+
+    return bgr;
+}
+
+void CaptureManager::Capture(const std::string &imagePath,
+                             const std::string &competition)
+{
+    cv::Mat image;
+
+if (imagePath.empty())
+{
+    Logger::Info("Capture Mode : LIVE SCREEN");
+
+    image = CaptureScreen();
+    cv::imwrite("01_desktop.jpg", image);
+    cv::Rect browserRect(
+    0,
+    0,
+    image.cols,
+    image.rows - 40
+);
+
+image = image(browserRect).clone();
+
+cv::imwrite("02_browser_crop.jpg", image);
+
+
+
+    Logger::Info("Screen Width  = " + std::to_string(image.cols));
+Logger::Info("Screen Height = " + std::to_string(image.rows));
+
+cv::imwrite("desktop_capture.jpg", image);
+
+
+}
+else
+{
+    Logger::Info("Capture Mode : TEST IMAGE");
+
+    image = cv::imread(imagePath);
+}
 
     // cv::namedWindow("Debug", cv::WINDOW_NORMAL);
 
