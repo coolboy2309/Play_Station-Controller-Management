@@ -1,3 +1,4 @@
+
 #include "../include/UploadManager.h"
 #include "../include/Logger.h"
 
@@ -7,12 +8,24 @@ UploadManager::UploadManager(
     server = serverURL;
 }
 
-void UploadManager::UploadSession(
+bool UploadManager::UploadSession(
     const MatchSession& session)
 {
     Logger::Info("Uploading Match Session...");
 
-    client.SendSession(
+    bool success = client.SendSession(
         server,
         session);
+
+    if (!success)
+    {
+        Logger::Error(
+            "Session upload failed. Session retained for retry.");
+
+        return false;
+    }
+
+    Logger::Info("Session Upload Confirmed");
+
+    return true;
 }

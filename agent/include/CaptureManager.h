@@ -1,19 +1,27 @@
+
 #pragma once
+
 #include <string>
 #include <opencv2/opencv.hpp>
 
 class CaptureManager
 {
 public:
-
-    void Capture(const std::string& imagePath,
-             const std::string& competition);
+    bool Capture(
+        const std::string& imagePath,
+        const std::string& competition,
+        cv::Mat& grayImage,
+        cv::Mat& binaryImage
+    );
 
     std::string GetCompetition() const;
 
-private:
+    cv::Mat GetLastFrame() const;
 
+private:
     std::string detectedCompetition;
+
+    cv::Mat lastFrame;
 
     cv::Mat CaptureScreen();
 };

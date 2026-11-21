@@ -28,6 +28,7 @@ add_executable(
     src/CompetitionDetector.cpp
     src/TimerValidator.cpp
     src/TimerStabilizer.cpp
+    src/FullTimeDetector.cpp
 )
 target_link_libraries(
     ZoneEyeAgent

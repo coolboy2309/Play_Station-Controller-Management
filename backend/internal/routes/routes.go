@@ -1,8 +1,10 @@
+
 package routes
 
 import (
 	"fmt"
 	"net/http"
+
 	"zoneeye/backend/internal/api"
 	"zoneeye/backend/internal/config"
 )
@@ -11,8 +13,9 @@ func Register(
 	mux *http.ServeMux,
 	stationHandler *api.StationHandler,
 	heartbeatHandler *api.HeartbeatHandler,
-    agentHandler *api.AgentHandler,
+	agentHandler *api.AgentHandler,
 	uploadHandler *api.UploadHandler,
+	matchSessionHandler *api.MatchSessionHandler,
 ) {
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -33,7 +36,9 @@ func Register(
 	})
 
 	RegisterStationRoutes(mux, stationHandler)
-    RegisterAgentRoutes(mux, heartbeatHandler)
-    RegisterAgentRegisterRoutes(mux, agentHandler)
+	RegisterAgentRoutes(mux, heartbeatHandler)
+	RegisterAgentRegisterRoutes(mux, agentHandler)
 	RegisterUploadRoutes(mux, uploadHandler)
+
+	mux.HandleFunc("/session", matchSessionHandler.SaveSession)
 }

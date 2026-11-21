@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include "HttpClient.h"
@@ -11,7 +12,7 @@ public:
     UploadManager(
         const std::string& serverURL);
 
-    void UploadSession(
+    bool UploadSession(
         const MatchSession& session);
 
 private:

@@ -1,76 +1,102 @@
+
 #include "../include/OCRManager.h"
 #include "../include/Logger.h"
 
-#include <tesseract/baseapi.h>
-#include <leptonica/allheaders.h>
-
 #include <algorithm>
+#include <cctype>
 
-std::string OCRManager::ReadSingleImage(
-    const std::string &imagePath,
-    int &confidence)
+OCRManager::OCRManager()
 {
-    tesseract::TessBaseAPI tess;
-
     if (tess.Init(
-            "C:/Program Files/Tesseract-OCR/tessdata",
-            "eng"))
+        "C:/Program Files/Tesseract-OCR/tessdata",
+        "eng"))
     {
-        return "";
+        Logger::Error("Tesseract initialization failed");
+        return;
     }
 
+    initialized = true;
+
     tess.SetPageSegMode(
-        tesseract::PSM_SINGLE_LINE);
+        tesseract::PSM_SINGLE_LINE
+    );
 
     tess.SetVariable(
         "tessedit_char_whitelist",
-        "0123456789:");
+        "0123456789:"
+    );
 
     tess.SetVariable(
         "load_system_dawg",
-        "0");
+        "0"
+    );
 
     tess.SetVariable(
         "load_freq_dawg",
-        "0");
+        "0"
+    );
 
-    Pix *image =
-        pixRead(imagePath.c_str());
+    Logger::Info("Tesseract Initialized");
+}
 
-    if (!image)
+
+OCRManager::~OCRManager()
+{
+    if (initialized)
     {
         tess.End();
+    }
+}
+
+
+std::string OCRManager::ReadSingleImage(
+    const cv::Mat& image,
+    int& confidence)
+{
+    confidence = 0;
+
+    if (!initialized || image.empty())
+    {
+        return "";
+    }
+
+    if (image.type() != CV_8UC1)
+    {
+        Logger::Error("OCR image must be 8-bit grayscale");
         return "";
     }
 
     Logger::Info(
-        "Pix Width = " +
-        std::to_string(
-            pixGetWidth(image)));
+        "OCR Image Width = " + std::to_string(image.cols)
+    );
 
     Logger::Info(
-        "Pix Height = " +
-        std::to_string(
-            pixGetHeight(image)));
+        "OCR Image Height = " + std::to_string(image.rows)
+    );
+
+    // Pass the OpenCV image directly to Tesseract.
+    tess.SetImage(
+        image.data,
+        image.cols,
+        image.rows,
+        1,
+        static_cast<int>(image.step)
+    );
+
+    if (tess.Recognize(nullptr) != 0)
+    {
+        Logger::Error("Tesseract recognition failed");
+        tess.Clear();
+        return "";
+    }
+
+    confidence = tess.MeanTextConf();
 
     Logger::Info(
-        "Pix Depth = " +
-        std::to_string(
-            pixGetDepth(image)));
+        "Mean confidence = " + std::to_string(confidence)
+    );
 
-    tess.SetImage(image);
-
-    tess.Recognize(0);
-
-    confidence =
-        tess.MeanTextConf();
-
-    Logger::Info(
-        "Mean confidence = " +
-        std::to_string(confidence));
-
-    char *out =
-        tess.GetUTF8Text();
+    char* out = tess.GetUTF8Text();
 
     std::string result;
 
@@ -78,82 +104,83 @@ std::string OCRManager::ReadSingleImage(
     {
         result = out;
 
-        result.erase(
-            std::remove(
-                result.begin(),
-                result.end(),
-                '\n'),
-            result.end());
-
-        result.erase(
-            std::remove(
-                result.begin(),
-                result.end(),
-                '\r'),
-            result.end());
-
-        result.erase(
-            std::remove(
-                result.begin(),
-                result.end(),
-                ' '),
-            result.end());
-
-        if (result.length() >= 5)
-            result = result.substr(0, 5);
-
-        if (result.size() != 5 ||
-            result[2] != ':')
-        {
-            result.clear();
-        }
+        delete[] out;
     }
 
-    delete[] out;
+    // Remove whitespace and line endings.
+    result.erase(
+        std::remove_if(
+            result.begin(),
+            result.end(),
+            [](unsigned char c)
+            {
+                return std::isspace(c);
+            }
+        ),
+        result.end()
+    );
 
-    pixDestroy(&image);
+    // A timer must have the format MM:SS.
+    if (result.size() != 5 || result[2] != ':')
+    {
+        result.clear();
+    }
 
-    tess.End();
+    Logger::Info("OCR Raw = [" + result + "]");
 
-    Logger::Info(
-        "OCR Raw = [" +
-        result +
-        "]");
+    tess.Clear();
 
     return result;
 }
 
-std::string OCRManager::ReadTimer()
+
+std::string OCRManager::ReadTimer(
+    const cv::Mat& grayImage,
+    const cv::Mat& binaryImage)
 {
     int grayConf = 0;
     int binaryConf = 0;
 
-    std::string gray =
-        ReadSingleImage(
-            "timer_gray.jpg",
-            grayConf);
+    std::string gray = ReadSingleImage(
+        grayImage,
+        grayConf
+    );
 
-    std::string binary =
-        ReadSingleImage(
-            "timer_binary.jpg",
-            binaryConf);
-
-    Logger::Info(
-        "Gray Confidence : " +
-        std::to_string(grayConf));
+    std::string binary = ReadSingleImage(
+        binaryImage,
+        binaryConf
+    );
 
     Logger::Info(
-        "Binary Confidence : " +
-        std::to_string(binaryConf));
+        "Gray Confidence : " + std::to_string(grayConf)
+    );
+
+    Logger::Info(
+        "Binary Confidence : " + std::to_string(binaryConf)
+    );
 
     std::string timer;
 
-    if (!binary.empty())
+    // Prefer the result with higher confidence when both are valid.
+    if (!gray.empty() && !binary.empty())
+    {
+        if (binaryConf > grayConf)
+        {
+            Logger::Info("Using Binary OCR");
+            timer = binary;
+        }
+        else
+        {
+            Logger::Info("Using Gray OCR");
+            timer = gray;
+        }
+    }
+    else if (!binary.empty())
     {
         Logger::Info("Using Binary OCR");
         timer = binary;
     }
-    else
+    else if (!gray.empty())
     {
         Logger::Info("Using Gray OCR");
         timer = gray;

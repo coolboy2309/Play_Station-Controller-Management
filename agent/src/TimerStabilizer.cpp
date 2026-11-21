@@ -1,41 +1,30 @@
+
 #include "../include/TimerStabilizer.h"
-#include <map>
 
 std::string TimerStabilizer::Update(const std::string& timer)
 {
+    // Handle failed OCR readings.
     if (timer.empty())
     {
+        emptyReadings++;
+
+        if (emptyReadings > MAX_EMPTY_READINGS)
+        {
+            history.clear();
+            return "";
+        }
+
         if (history.empty())
             return "";
 
         return history.back();
     }
 
+    // Accept the newest non-empty OCR reading.
+    emptyReadings = 0;
+
+    history.clear();
     history.push_back(timer);
 
-    if (history.size() > MAX_HISTORY)
-    {
-        history.pop_front();
-    }
-
-    std::map<std::string, int> counter;
-
-    for (const auto& t : history)
-    {
-        counter[t]++;
-    }
-
-    std::string bestTimer = history.back();
-    int bestCount = 0;
-
-    for (const auto& item : counter)
-    {
-        if (item.second > bestCount)
-        {
-            bestCount = item.second;
-            bestTimer = item.first;
-        }
-    }
-
-    return bestTimer;
+    return timer;
 }
