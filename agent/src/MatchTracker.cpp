@@ -6,9 +6,10 @@ void MatchTracker::Update(
     MatchState state,
     int minute,
     int second,
-    const std::string &timer,
-    const std::string &competition,
-    const std::string &station)
+    const std::string& timer,
+    const std::string& competition,
+    const std::string& station,
+    bool newMatch)
 {
     switch (trackerState)
     {
@@ -31,6 +32,19 @@ void MatchTracker::Update(
 
     case TrackerState::RUNNING:
 
+        if (newMatch)
+        {
+            Logger::Info("NEW MATCH DETECTED");
+
+            session.Finish(
+                timer,
+                false);
+
+            trackerState = TrackerState::IDLE;
+
+            return;
+        }
+
         if (state == MatchState::HALFTIME)
         {
             Logger::Info("HALFTIME");
@@ -40,15 +54,16 @@ void MatchTracker::Update(
         {
             trackerState = TrackerState::WAITING_END;
 
-            endCandidateTime = std::chrono::steady_clock::now();
+            endCandidateTime =
+                std::chrono::steady_clock::now();
 
             Logger::Info("WAITING FOR MATCH END");
         }
 
-        break;
+        break; 
 
     case TrackerState::WAITING_END:
-
+    {
         if (state == MatchState::EXTRA_TIME)
         {
             trackerState = TrackerState::RUNNING;
@@ -63,24 +78,37 @@ void MatchTracker::Update(
                 std::chrono::steady_clock::now() -
                 endCandidateTime);
 
+        std::string timerDisplay =
+            timer.empty()
+                ? "DISAPPEARED"
+                : timer;
+
+        Logger::Info(
+            "END CANDIDATE WAIT: " +
+            std::to_string(elapsed.count()) +
+            " sec | Timer: " +
+            timerDisplay);
+
         if (elapsed.count() >= 10)
         {
             trackerState = TrackerState::FINISHED;
 
             session.Finish(
                 timer,
-                state == MatchState::EXTRA_TIME);
+                false);
 
             Logger::Info("MATCH FINISHED");
         }
 
         break;
+    }
 
     case TrackerState::FINISHED:
 
         break;
     }
 }
+
 bool MatchTracker::HasFinished() const
 {
     return trackerState ==
@@ -92,6 +120,7 @@ MatchTracker::GetSession() const
 {
     return session.GetSession();
 }
+
 void MatchTracker::Reset()
 {
     trackerState = TrackerState::IDLE;

@@ -9,12 +9,13 @@ class MatchTracker
 {
 public:
     void Update(
-        MatchState state,
-        int minute,
-        int second,
-        const std::string &timer,
-        const std::string &competition,
-        const std::string &station);
+    MatchState state,
+    int minute,
+    int second,
+    const std::string &timer,
+    const std::string &competition,
+    const std::string &station,
+    bool newMatch);
 
 public:
     bool HasFinished() const;

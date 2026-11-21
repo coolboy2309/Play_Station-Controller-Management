@@ -1,5 +1,9 @@
 622 88:42
- // cv::namedWindow("Debug", cv::WINDOW_NORMAL);
+
+    image = cv::imread(imagePath);
+}
+
+    // cv::namedWindow("Debug", cv::WINDOW_NORMAL);
 
     // cv::setMouseCallback(
     //     "Debug",
@@ -15,7 +19,7 @@
 
     // cv::imshow("Debug", image);
     // cv::waitKey(0);
-
+}
 
     X=66  Y=34
     X=187 Y=92

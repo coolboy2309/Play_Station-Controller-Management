@@ -74,60 +74,51 @@ cv::Mat CaptureManager::CaptureScreen()
     return bgr;
 }
 
-void CaptureManager::Capture(const std::string &imagePath,
-                             const std::string &competition)
+void CaptureManager::Capture(
+    const std::string& imagePath,
+    const std::string& competition)
 {
     cv::Mat image;
 
-if (imagePath.empty())
-{
-    Logger::Info("Capture Mode : LIVE SCREEN");
+    if (imagePath.empty())
+    {
+        Logger::Info("Capture Mode : LIVE SCREEN");
 
-    image = CaptureScreen();
-    cv::imwrite("01_desktop.jpg", image);
-    cv::Rect browserRect(
-    0,
-    0,
-    image.cols,
-    image.rows - 40
-);
+        image = CaptureScreen();
 
-image = image(browserRect).clone();
+        if (image.empty())
+        {
+            Logger::Error("Failed to capture screen");
+            return;
+        }
 
-cv::imwrite("02_browser_crop.jpg", image);
+        // Remove bottom Windows/taskbar area.
+        if (image.rows > 40)
+        {
+            cv::Rect browserRect(
+                0,
+                0,
+                image.cols,
+                image.rows - 40
+            );
 
+            image = image(browserRect).clone();
+        }
 
+        Logger::Info(
+            "Screen Width  = " +
+            std::to_string(image.cols));
 
-    Logger::Info("Screen Width  = " + std::to_string(image.cols));
-Logger::Info("Screen Height = " + std::to_string(image.rows));
+        Logger::Info(
+            "Screen Height = " +
+            std::to_string(image.rows));
+    }
+    else
+    {
+        Logger::Info("Capture Mode : TEST IMAGE");
 
-cv::imwrite("desktop_capture.jpg", image);
-
-
-}
-else
-{
-    Logger::Info("Capture Mode : TEST IMAGE");
-
-    image = cv::imread(imagePath);
-}
-
-    // cv::namedWindow("Debug", cv::WINDOW_NORMAL);
-
-    // cv::setMouseCallback(
-    //     "Debug",
-    //     [](int event, int x, int y, int, void *)
-    //     {
-    //         if (event == cv::EVENT_MOUSEMOVE)
-    //         {
-    //             std::cout << "X=" << x
-    //                       << " Y=" << y
-    //                       << std::endl;
-    //         }
-    //     });
-
-    // cv::imshow("Debug", image);
-    // cv::waitKey(0);
+        image = cv::imread(imagePath);
+    }
 
     if (image.empty())
     {
@@ -138,20 +129,46 @@ else
     Logger::Info("Image Loaded Successfully");
 
     //----------------------------------------------------
-    // Get timer position from LayoutManager
+    // Competition Detection
     //----------------------------------------------------
 
     detectedCompetition =
         CompetitionDetector::Detect(image);
 
     Logger::Info(
-        "Competition : " + detectedCompetition);
+        "Competition : " +
+        detectedCompetition);
+
+    //----------------------------------------------------
+    // Timer Region
+    //----------------------------------------------------
 
     cv::Rect timerOnly =
-        LayoutManager::GetTimerRegion(detectedCompetition);
+        LayoutManager::GetTimerRegion(
+            detectedCompetition);
+
+    if (timerOnly.width <= 0 ||
+        timerOnly.height <= 0 ||
+        timerOnly.x < 0 ||
+        timerOnly.y < 0 ||
+        timerOnly.x + timerOnly.width > image.cols ||
+        timerOnly.y + timerOnly.height > image.rows)
+    {
+        Logger::Error(
+            "Invalid timer region for competition: " +
+            detectedCompetition);
+
+        return;
+    }
 
     cv::Mat timer =
         image(timerOnly).clone();
+
+    if (timer.empty())
+    {
+        Logger::Error("Timer region is empty");
+        return;
+    }
 
     //----------------------------------------------------
     // Gray
@@ -165,7 +182,7 @@ else
         cv::COLOR_BGR2GRAY);
 
     //----------------------------------------------------
-    // Resize x6
+    // Resize
     //----------------------------------------------------
 
     cv::resize(
@@ -177,8 +194,9 @@ else
         cv::INTER_LINEAR);
 
     //----------------------------------------------------
-    // Save
+    // Binary processing
     //----------------------------------------------------
+
     cv::Mat binary;
 
     if (detectedCompetition == "SerieA")
@@ -189,16 +207,6 @@ else
             120,
             255,
             cv::THRESH_BINARY_INV);
-
-        // Save BOTH images from the threshold result
-        cv::imwrite("timer_gray.jpg", binary);
-        cv::imwrite("timer_binary.jpg", binary);
-    }
-    else
-    {
-        // Normal competitions
-        cv::imwrite("timer_gray.jpg", gray);
-        cv::imwrite("timer_binary.jpg", gray);
     }
 }
 

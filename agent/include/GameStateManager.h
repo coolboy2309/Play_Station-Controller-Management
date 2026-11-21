@@ -9,6 +9,8 @@ public:
 
     MatchState Detect(int minute);
 
+    void Reset();
+
 private:
 
     MatchState currentState = MatchState::UNKNOWN;

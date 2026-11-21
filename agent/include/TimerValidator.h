@@ -11,4 +11,8 @@ public:
     static bool IsSequential(
         const std::string& previous,
         const std::string& current);
+
+    static bool IsNewMatch(
+        const std::string& previous,
+        const std::string& current);
 };
